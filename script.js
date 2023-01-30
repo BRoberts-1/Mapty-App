@@ -102,3 +102,15 @@ inputType.addEventListener('change', function () {
   inputElevation.closest('.form__row').classList.toggle('form__row--hidden');
   inputCadence.closest('.form__row').classList.toggle('form__row--hidden');
 });
+
+// Section 236 - Project Architecture
+// Is this project we will use classes and objects mainly
+// One of the most important decisions in architecture is to decide where and how to store the data. Data is the most fundamental part of any application.
+//  In our user stories we need to store: location, distance, time, pace or speed, and step/min(cadence) or elevation gain. We will design our classes so that they can create objects that hold this data we specified.
+// We will create a parent class called 'Workout' with id, distance, duration, coords(these are common to both child classes) date, and a constructor()
+// We will create two child classes for their specific needs: 1. "Running" class with name, cadence, pace, and constructor() and 2. "Cycling" class with name, elevationGain, speed, and constructor()
+// Usually OOP diagrams have properties on top and methods on bottom - see this section to see
+// So far we have these events: load page, receive position through geolocation, click on map, change input, and submit form. Now we have to create functions for each-we will create a class "App" that will hold all these functions as methods.
+// New objects will be created for each workout and then all the workouts will be stored in an array.
+// If our app was bigger or more complex we could create a class that was concerned with the UI and then a class concerned with the business logic(ie the logic that works with the underlying data)
+// We will have protected methods _getPosition()-load page, -loadMap(position)-receive position, _showForm() -click on map, _toggleElevationField() -change input, -newWorkout()-submit form
