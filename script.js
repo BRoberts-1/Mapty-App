@@ -11,7 +11,10 @@ const inputDuration = document.querySelector('.form__input--duration');
 const inputCadence = document.querySelector('.form__input--cadence');
 const inputElevation = document.querySelector('.form__input--elevation');
 
-// Important to start a project with a planning phase before beginning in order to organize and prevent
+// Section 231 - Planning a project
+
+// Important to start a project with a planning phase before beginning in order to organize and prevent future issues.
+
 // 1. User Stories - A description of the applications functionality from the user's perspective. All user stories put together describe the entire application.
 // 2. Features with user stories is a high level overview of the whole application that allows developers to develop the exact features to implement that are needed to make the user stories work as intended.
 // 3. Flowchart - To visualize the different actions the user can take and how the program reacts to these actions
@@ -32,3 +35,70 @@ const inputElevation = document.querySelector('.form__input--elevation');
 // Whenever, building a flowchart start with events- page load, get current location coordinates using geolocation, render map on current location. Flowchart is broken up into yellow-actions, green-rendering, red-async events
 
 // With flowchart and architecture you can always change it and develop it as you go. It doesn't have to be perfect.
+
+//////////////////////
+// Section 232 - Using the Geolocatin API
+
+let map, mapEvent;
+// To initialize:
+if (navigator.geolocation)
+  navigator.geolocation.getCurrentPosition(
+    function (position) {
+      const { latitude } = position.coords;
+      const { longitude } = position.coords;
+      console.log(`https://www.google.com/maps/@${latitude}, ${longitude}`);
+
+      const coords = [latitude, longitude];
+
+      map = L.map('map').setView(coords, 13);
+      // console.log(map); shows all methods from leaflet library - see docs
+
+      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution:
+          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      }).addTo(map);
+
+      // Handling clicks on map
+      map.on('click', function (mapE) {
+        mapEvent = mapE;
+        form.classList.remove('hidden');
+        inputDistance.focus();
+      });
+    },
+    function () {
+      alert('Could not acquire your position.');
+    }
+  );
+
+form.addEventListener('submit', function (e) {
+  e.preventDefault();
+
+  // To clear imput fields after submit
+  inputDistance.value =
+    inputDuration.value =
+    inputCadence.value =
+    inputElevation.value =
+      '';
+
+  // To display marker
+  console.log(mapEvent);
+  const { lat, lng } = mapEvent.latlng;
+  L.marker([lat, lng])
+    .addTo(map)
+    .bindPopup(
+      L.popup({
+        maxWidth: 250,
+        minWidth: 100,
+        autoClose: false,
+        closeOnClick: false,
+        className: 'running-popup',
+      })
+    )
+    .setPopupContent('Workout')
+    .openPopup();
+});
+
+inputType.addEventListener('change', function () {
+  inputElevation.closest('.form__row').classList.toggle('form__row--hidden');
+  inputCadence.closest('.form__row').classList.toggle('form__row--hidden');
+});
