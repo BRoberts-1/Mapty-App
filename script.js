@@ -37,8 +37,52 @@ const inputElevation = document.querySelector('.form__input--elevation');
 // With flowchart and architecture you can always change it and develop it as you go. It doesn't have to be perfect.
 
 //////////////////////
-// Section 232 - Using the Geolocatin API
+// We will never directly create a workout, rather we will just create a running or cycling object using the child classes below.
+class Workout {
+  date = new Date();
+  /// All objects created should have a unique id and you will use a library to create these. They are very important. Here we will just use the current date using Date.now, convert to a string, and then use the last 10 numbers using .slice()
+  id = (Date.now() + '').slice(-10);
 
+  constructor(coords, distance, duration) {
+    this.coords = coords; // need an arrya of lat and long [lat, long]
+    this.distance = distance; // in km
+    this.duration = duration; // in minutes
+  }
+}
+
+class Running extends Workout {
+  constructor(coords, distance, duration, cadence) {
+    super(coords, distance, duration);
+    this.cadence = cadence;
+    this.calcPace();
+  }
+
+  calcPace() {
+    // Pace is calculated by min/km
+    this.pace = this.duration / this.distance;
+    return this.pace;
+  }
+}
+
+class Cycling extends Workout {
+  constructor(coords, distance, duration, elevationGain) {
+    super(coords, distance, duration);
+    this.elevationGain = elevationGain;
+  }
+
+  calcSpeed() {
+    // method to calculate speed is km/hours
+    this.speed = this.distance / (this.duration / 60);
+    return this.speed;
+  }
+}
+// to see if our classes are working properly
+// const run1 = new Running([39, -12], 5.2, 24, 178);
+// const cycling1 = new Cycling([39, -12], 27, 95, 523);
+// console.log(run1, cycling1);
+
+/////////////////////////////////////////////
+// APPLICATION ARCHITECTURE
 class App {
   #map;
   #mapEvent;
