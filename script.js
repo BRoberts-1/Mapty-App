@@ -105,8 +105,13 @@ class App {
   #workouts = [];
 
   constructor() {
+    // Get user's position
     this._getPosition();
 
+    // Get data from local storage - data is stored, now we need to read and display
+    this._getLocalStorage();
+
+    // Event handlers
     form.addEventListener('submit', this._newWorkout.bind(this));
 
     inputType.addEventListener('change', this._toggleElevationField);
@@ -141,6 +146,10 @@ class App {
 
     // Handling clicks on map
     this.#map.on('click', this._showForm.bind(this));
+
+    this.#workouts.forEach(work => {
+      this._renderWorkoutMarker(work);
+    });
   }
 
   _showForm(mapE) {
@@ -216,20 +225,22 @@ class App {
     }
     // Push/Add new object to workout array
     this.#workouts.push(workout);
-    console.log(workout);
+    // console.log(workout);
 
     // Render workout on map as marker
     // console.log(mapEvent);
 
+    this._renderWorkoutMarker(workout);
     // Render workout onto our list of saved workouts
     this._renderWorkout(workout);
 
     // To display marker
 
-    this._renderWorkoutMarker(workout);
-
     // Hide our form + clear input fields after submit
     this._hideForm();
+
+    // Set local storage to all workouts to persist data
+    this._setLocalStorage();
   }
 
   _renderWorkoutMarker(workout) {
@@ -300,23 +311,52 @@ class App {
   }
   _moveToPopup(e) {
     const workoutEl = e.target.closest('.workout');
-    console.log(workoutEl);
+    // console.log(workoutEl);
 
     if (!workoutEl) return;
 
     const workout = this.#workouts.find(
       work => work.id === workoutEl.dataset.id
     );
-    console.log(workout);
+    // console.log(workout);
     // setView() is a method from leaflet library: 1st arg-coords, 2nd arg-zoom level, 3rd arg is object of options. We will create another private object field/propoerty called #mapZoomLevel above.
     this.#map.setView(workout.coords, this.#mapZoomLevel, {
       animate: true,
       pan: { duration: 1 },
     });
   }
+  // using browser API to save data-it is a key/value store so both have to be strings, 1st arg - give a name, 2nd arg - must turn object into a string using JSON.stringify() method which converts objects into strings. Local storage API is only used for small amounts of data because it is 'blocking'
+  _setLocalStorage() {
+    localStorage.setItem('workouts', JSON.stringify(this.#workouts));
+  }
+
+  _getLocalStorage() {
+    // JSON.parse() converts string to object - opposite of JSON.stringify()
+    const data = JSON.parse(localStorage.getItem('workouts'));
+    // console.log(data);
+
+    // guard clause
+    if (!data) return;
+
+    //we want to take our data(workout array) and restore it across multiple reloads by reassigning it if it already exist from previous workouts.
+    this.#workouts = data;
+
+    // now we want to render all of our workouts in the sidebar list of workouts
+    this.#workouts.forEach(work => {
+      this._renderWorkout(work);
+    });
+  }
+  // creating a quick method to delete all the workouts. We will use a public method. We will remove 'workouts' item from localStorage. We can use a method that removes items based on a key called localStorage.removeItem()
+  reset() {
+    localStorage.removeItem('workouts');
+    // we can reload the page programmatically using location.reload()
+    location.reload();
+  }
 }
 
 const app = new App();
+
+// IMPORTANT - Object coming from LocalStorage, converting objects to strings and vice-versa you lose the prototype chain because regular new objects are created and therefore  you lose the methods that were previously inherited.
 
 // Section 236 - Project Architecture
 // Is this project we will use classes and objects mainly
